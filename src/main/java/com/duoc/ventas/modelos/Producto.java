@@ -1,14 +1,31 @@
 package com.duoc.ventas.modelos;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "producto")
 public class Producto {
-            
-    private String id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column
     private String nombre;
+
+    @Column
     private String clasificacion; //comida, higiene, accesorios, etc
+
+    @Column
     private double precio;
+
+    @Column
     private int stock;
 
-    public Producto(String id, String nombre, String clasificacion, double precio, int stock) {
+    public Producto() {
+    }
+
+    public Producto(Long id, String nombre, String clasificacion, double precio, int stock) {
         this.id = id;
         this.nombre = nombre;
         this.clasificacion = clasificacion;
@@ -16,11 +33,11 @@ public class Producto {
         this.stock = stock;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

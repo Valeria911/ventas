@@ -1,13 +1,31 @@
 package com.duoc.ventas.modelos;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "venta")
 public class VentaProducto {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "id_producto")
     private Long idProducto;
+
+    @Column
     private int cantidad;
+
+    @Column(name = "precio_unitario")
     private double precioUnitario;
+
+    @Column(name = "fecha_venta")
     private LocalDate fechaVenta;
+
+    public VentaProducto() {
+    }
 
     public VentaProducto(Long id, Long idProducto, int cantidad, double precioUnitario, LocalDate fechaVenta) {
         this.id = id;
