@@ -1,67 +1,82 @@
 package com.duoc.ventas.servicios;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import com.duoc.ventas.repositorios.VentaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.duoc.ventas.modelos.VentaProducto;
 
 @Service
 public class VentaService {
-    private List<VentaProducto> ventas = new ArrayList<>();  
-    private Long nextId = 1L;
-    
-    public VentaService() {
-        // Datos de prueba
-        ventas.add(new VentaProducto(1L, 101L, 2, 50.0, java.time.LocalDate.of(2024, 6, 1)));
-        ventas.add(new VentaProducto(2L, 102L, 1, 30.0, java.time.LocalDate.of(2024, 6, 1)));
-        ventas.add(new VentaProducto(3L, 103L, 3, 20.0, java.time.LocalDate.of(2024, 6, 2)));
-        ventas.add(new VentaProducto(4L, 104L, 5, 15.0, java.time.LocalDate.of(2024, 5, 15)));
-        ventas.add(new VentaProducto(5L, 105L, 4, 25.0, java.time.LocalDate.of(2023, 12, 20)));
-        ventas.add(new VentaProducto(6L, 106L, 2, 20.0, java.time.LocalDate.of(2023, 12, 20)));
-        ventas.add(new VentaProducto(7L, 107L, 1, 100.0, java.time.LocalDate.of(2024, 1, 10)));
-        ventas.add(new VentaProducto(8L, 108L, 6, 10.0, java.time.LocalDate.of(2024, 1, 11)));
-    }
-    //Registrar venta
-    public VentaProducto registrarVenta(Long idProducto, int cantidad, double precioUnitario, LocalDate fechaVenta) {
-        if (cantidad <= 0 || precioUnitario < 0) {
-            throw new IllegalArgumentException("Cantidad y precio unitario deben ser mayores que cero");
-        }
-        VentaProducto venta = new VentaProducto(nextId++, idProducto, cantidad, precioUnitario, fechaVenta);
-        ventas.add(venta);
-        return venta;
+
+    @Autowired
+    private VentaRepository ventas;
+
+    //obtener todas las ventas
+    public List<VentaProducto> obtenerVentas(){
+        return ventas.findAll();
     }
 
-    //Obtener todas las ventas
-    public List<VentaProducto> obtenerTodasLasVentas() {
-        return ventas;  
+    //obtener una venta por id
+    public Optional<VentaProducto> obtenerPorId(Long id){
+        return ventas.findById(id);
+    }
+
+    //crear una venta
+    public VentaProducto guardarVenta(VentaProducto ventaProducto){
+        return ventas.save(ventaProducto);
+    }
+
+    //actualizar una venta
+    public ResponseEntity<VentaProducto> actualizarVenta(Long id, VentaProducto ventaProducto){
+        return ventas.findById(id).map(ventaProducto1 -> {
+            ventaProducto1.setIdProducto(ventaProducto.getIdProducto());
+            ventaProducto1.setCantidad(ventaProducto.getCantidad());
+            ventaProducto1.setPrecioUnitario(ventaProducto.getPrecioUnitario());
+            ventaProducto1.setFechaVenta(ventaProducto.getFechaVenta());
+            return ResponseEntity.ok(ventas.save(ventaProducto1));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    //eliminar una venta
+    public ResponseEntity<Void> eliminarVenta(Long id){
+        if (ventas.existsById(id)){
+            ventas.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     //obtener ganancias diarias
     public double obtenerGananciasDiarias(LocalDate fecha) {
-        return ventas.stream()
-                .filter(v -> v.getFechaVenta().equals(fecha))
-                .mapToDouble(v -> v.getCantidad() * v.getPrecioUnitario())
-                .sum(); 
-    }
-
-    //obtener ganancias mensuales
-    public double obtenerGananciasMensuales(int mes, int anio) {
-        return ventas.stream()
-                .filter(v -> v.getFechaVenta().getMonthValue() == mes && v.getFechaVenta().getYear() == anio)
-                .mapToDouble(v -> v.getCantidad() * v.getPrecioUnitario())
-                .sum(); 
-    }
-
-    //obtener ganancias anuales
-    public double obtenerGananciasAnuales(int anio) {
-        return ventas.stream()
-                .filter(v -> v.getFechaVenta().getYear() == anio)
+        List<VentaProducto> ventasDelDia = ventas.findByFechaVenta(fecha);
+        return ventasDelDia.stream()
                 .mapToDouble(v -> v.getCantidad() * v.getPrecioUnitario())
                 .sum();
     }
 
+    //obtener ganancias mensuales
+    public double obtenerGananciasPorMes(int anio, int mes) {
+        LocalDate inicio = LocalDate.of(anio, mes, 1);
+        LocalDate fin = inicio.withDayOfMonth(inicio.lengthOfMonth());
+        List<VentaProducto> ventasMes = ventas.findByFechaVentaBetween(inicio, fin);
+        return ventasMes.stream()
+                .mapToDouble(v -> v.getCantidad() * v.getPrecioUnitario())
+                .sum();
+    }
 
+    //obtener ganancias anuales
+    public double obtenerGananciasPorAnio(int anio) {
+        LocalDate inicio = LocalDate.of(anio, 1, 1);
+        LocalDate fin = LocalDate.of(anio, 12, 31);
+        List<VentaProducto> ventasAnio = ventas.findByFechaVentaBetween(inicio, fin);
+        return ventasAnio.stream()
+                .mapToDouble(v -> v.getCantidad() * v.getPrecioUnitario())
+                .sum();
+    }
 }
