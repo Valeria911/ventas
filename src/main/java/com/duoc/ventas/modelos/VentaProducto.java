@@ -1,12 +1,13 @@
 package com.duoc.ventas.modelos;
 
 import jakarta.persistence.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "venta")
-public class VentaProducto {
+public class VentaProducto extends RepresentationModel<VentaProducto> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -31,14 +31,14 @@ public class ProductoService {
     }
 
     //modificar producto
-    public ResponseEntity<Producto> actualizarProducto(Long id, Producto producto){
+    public Producto actualizarProducto(Long id, Producto producto){
         return productoRepository.findById(id).map(producto1 -> {
             producto1.setNombre(producto.getNombre());
             producto1.setClasificacion(producto.getClasificacion());
             producto1.setPrecio(producto.getPrecio());
             producto1.setStock(producto.getStock());
             return ResponseEntity.ok(productoRepository.save(producto1));
-        }).orElse(ResponseEntity.notFound().build());
+        }).orElse(ResponseEntity.notFound().build()).getBody();
     }
 
     //eliminar producto

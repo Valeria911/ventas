@@ -33,14 +33,14 @@ public class VentaService {
     }
 
     //actualizar una venta
-    public ResponseEntity<VentaProducto> actualizarVenta(Long id, VentaProducto ventaProducto){
+    public VentaProducto actualizarVenta(Long id, VentaProducto ventaProducto){
         return ventas.findById(id).map(ventaProducto1 -> {
             ventaProducto1.setIdProducto(ventaProducto.getIdProducto());
             ventaProducto1.setCantidad(ventaProducto.getCantidad());
             ventaProducto1.setPrecioUnitario(ventaProducto.getPrecioUnitario());
             ventaProducto1.setFechaVenta(ventaProducto.getFechaVenta());
             return ResponseEntity.ok(ventas.save(ventaProducto1));
-        }).orElse(ResponseEntity.notFound().build());
+        }).orElse(ResponseEntity.notFound().build()).getBody();
     }
 
     //eliminar una venta

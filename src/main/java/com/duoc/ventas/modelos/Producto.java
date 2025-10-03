@@ -1,10 +1,11 @@
 package com.duoc.ventas.modelos;
 
 import jakarta.persistence.*;
+import org.springframework.hateoas.RepresentationModel;
 
 @Entity
 @Table(name = "producto")
-public class Producto {
+public class Producto extends RepresentationModel<Producto> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +15,7 @@ public class Producto {
     private String nombre;
 
     @Column
-    private String clasificacion; //comida, higiene, accesorios, etc
+    private String clasificacion; //alimentos, higiene, accesorios, etc
 
     @Column
     private double precio;
