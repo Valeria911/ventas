@@ -39,7 +39,7 @@ public class ProductoControllerTest {
         List<Producto> productos = Arrays.asList(producto1, producto2);
         when(productoService.obtenerProductos()).thenReturn(productos);
 
-        //Act and Assert
+        //Act y Assert
         mockMvc.perform(MockMvcRequestBuilders.get("/productos"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.aMapWithSize(2)))
